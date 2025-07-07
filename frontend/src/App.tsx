@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Xarrow, { Xwrapper } from 'react-xarrows'
 import CategorySelector from './CategorySelector'
+import CreateRoutineButton from './CreateRoutineButton'
 
 function App() {
   const [selected, setSelected] = useState<string | null>(null)
@@ -21,6 +22,10 @@ function App() {
   }
 
   const subcats = getSubcats(selected)
+
+  const handleCreateRoutine = () => {
+    alert('Practice routine created!');
+  };
 
     // Toggle function for main category
   const toggleMainCategory = (category: string) => {
@@ -114,7 +119,11 @@ function App() {
               divContainerStyle={{ position: 'relative', overflow: 'visible' }}
             />
           </>
-        )}</div>
+        )}
+        {selected && selectedSub && selectedTime && (
+          <CreateRoutineButton onClick={handleCreateRoutine} />
+        )}
+        </div>
     </Xwrapper>
   )
 }
