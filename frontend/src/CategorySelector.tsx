@@ -1,11 +1,10 @@
 interface Props {
+  categories: string[] 
   selected: string | null
   setSelected: (val: string) => void
 }
 
-const categories = ['Rhythm', 'Melody', 'Harmony']
-
-export default function CategorySelector({ selected, setSelected }: Props) {
+export default function CategorySelector({ categories, selected, setSelected }: Props) {
   return (
     <div className="flex flex-col sm:flex-row items-center sm:space-x-8 space-y-4 sm:space-y-0">
       {categories.map((cat) => (
