@@ -5,6 +5,7 @@ import CategorySelector from './CategorySelector'
 function App() {
   const [selected, setSelected] = useState<string | null>(null)
   const [selectedSub, setSelectedSub] = useState<string | null>(null)
+  const [selectedTime, setSelectedTime] = useState<string | null>(null)
 
   const getSubcats = (cat: string | null) => {
     switch (cat) {
@@ -21,6 +22,24 @@ function App() {
 
   const subcats = getSubcats(selected)
 
+    // Toggle function for main category
+  const toggleMainCategory = (category: string) => {
+    setSelected(prev => (prev === category ? null : category))
+    setSelectedSub(null)
+    setSelectedTime(null)
+  }
+
+  // Toggle function for subcategory
+  const toggleSubCategory = (subcategory: string) => {
+    setSelectedSub(prev => (prev === subcategory ? null : subcategory))
+    setSelectedTime(null)
+  }
+
+  // Toggle function for time duration
+  const toggleTimeDuration = (time: string) => {
+    setSelectedTime(prev => (prev === time ? null : time))
+  }
+
   return (
     <Xwrapper>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-gray-100 p-4">
@@ -30,7 +49,7 @@ function App() {
           prefix="main"
           categories={['Rhythm', 'Melody', 'Harmony']}
           selected={selected}
-          setSelected={val => { setSelected(val); setSelectedSub(null) }}
+          setSelected={val => { toggleMainCategory(val); setSelectedSub(null); setSelectedTime(null) }}
         />
 
         {subcats && (
@@ -39,26 +58,63 @@ function App() {
               prefix="sub"
               categories={subcats}
               selected={selectedSub}
-              setSelected={setSelectedSub}
+              setSelected={val => { toggleSubCategory(val); setSelectedTime(null) }}
             />
           </div>
         )}
 
-        {/* Render arrow only when both are selected */}
-        {selected && selectedSub && (
-          <Xarrow
-            start={`main-${selected}`}
-            end={`sub-${selectedSub}`}
-            color="#FBBF24"
-            strokeWidth={4}
-            headSize={6}
-            path="smooth"
-            startAnchor={{ position: "bottom", offset: { x: 0 } }}
-            endAnchor={{ position: "top", offset: { x: 0 } }}
-            divContainerStyle={{ position: 'relative', overflow: 'visible' }} 
-          />
+        {selectedSub && (
+          <div className="mt-16">
+            <CategorySelector
+              prefix="time"
+              categories={['15 minutes', '30 minutes', '45 minutes']}
+              selected={selectedTime}
+              setSelected={toggleTimeDuration}
+            />
+          </div>
         )}
-      </div>
+
+        {selected && selectedSub && !selectedTime && (
+          <>
+            <Xarrow
+              start={`main-${selected}`}
+              end={`sub-${selectedSub}`}
+              color="#FBBF24"
+              strokeWidth={4}
+              headSize={6}
+              path="smooth"
+              startAnchor={{ position: "bottom", offset: { x: 0 } }}
+              endAnchor={{ position: "top", offset: { x: 0 } }}
+              divContainerStyle={{ position: 'relative', overflow: 'visible' }}
+            />
+          </>
+        )}
+        {selected && selectedSub && selectedTime && (
+          <>
+            <Xarrow
+              start={`main-${selected}`}
+              end={`sub-${selectedSub}`}
+              color="#FBBF24"
+              strokeWidth={4}
+              headSize={6}
+              path="smooth"
+              startAnchor={{ position: "bottom", offset: { x: 0 } }}
+              endAnchor={{ position: "top", offset: { x: 0 } }}
+              divContainerStyle={{ position: 'relative', overflow: 'visible' }}
+            />
+            <Xarrow
+              start={`sub-${selectedSub}`}
+              end={`time-${selectedTime}`}
+              color="#FBBF24"
+              strokeWidth={4}
+              headSize={6}
+              path="smooth"
+              startAnchor={{ position: "bottom", offset: { x: 0 } }}
+              endAnchor={{ position: "top", offset: { x: 0 } }}
+              divContainerStyle={{ position: 'relative', overflow: 'visible' }}
+            />
+          </>
+        )}</div>
     </Xwrapper>
   )
 }
