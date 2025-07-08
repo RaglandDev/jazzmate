@@ -2,6 +2,7 @@ import { useState } from "react";
 import Xarrow, { Xwrapper } from "react-xarrows";
 import CategorySelector from "./CategorySelector";
 import CreateRoutineButton from "./CreateRoutineButton";
+import RoutineDisplay from "./RoutineDisplay";
 import { handleCreateRoutine } from "./prompts/handleCreateRoutine";
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [routine, setRoutine] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getSubcats = (cat: string | null) => {
     switch (cat) {
@@ -43,12 +45,32 @@ function App() {
     setSelectedTime((prev) => (prev === time ? null : time));
   };
 
+  const handleGenerateRoutine = async () => {
+    setIsLoading(true);
+    try {
+      const res = await handleCreateRoutine(
+        selected,
+        selectedSub,
+        selectedTime
+      );
+      setRoutine(res);
+    } catch (error) {
+      console.error("Error generating routine:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Xwrapper>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-gray-100 p-4">
-        <h1 className="text-4xl font-bold mb-8">
+        <h1 className="text-6xl font-bold mb-4 text-amber-400">JazzMate</h1>
+        <h2 className="text-lg text-gray-300 mb-12">
+          Personalized practice routines for jazz guitar
+        </h2>
+        <h3 className="text-3xl font-semibold mb-8 text-white">
           What do you want to work on?
-        </h1>
+        </h3>
 
         <CategorySelector
           prefix="main"
@@ -129,18 +151,12 @@ function App() {
         )}
         {selected && selectedSub && selectedTime && (
           <CreateRoutineButton
-            onClick={async () => {
-              const res = await handleCreateRoutine(
-                selected,
-                selectedSub,
-                selectedTime
-              );
-              setRoutine(res);
-            }}
+            onClick={handleGenerateRoutine}
+            isLoading={isLoading}
           />
         )}
 
-        <div>{routine}</div>
+        <RoutineDisplay routine={routine} onBack={() => setRoutine(null)} />
       </div>
     </Xwrapper>
   );

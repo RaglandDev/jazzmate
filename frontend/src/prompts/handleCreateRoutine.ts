@@ -2,7 +2,7 @@ export async function handleCreateRoutine(selected : any, selectedSub: any, sele
   const prompt = `Create a detailed ${selectedTime} music practice routine for ${selected} practice focused on ${selectedSub}. Include warm-up, main exercises, and cool-down with specific instructions.`;
 
   const requestPayload = {
-    model: "undefined", // This field is still sent but not used by Gemini backend
+    model: "undefined",  // this gets changed to gemini model
     messages: [
       {
         role: "system",
