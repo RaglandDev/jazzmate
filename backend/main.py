@@ -1,10 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import HTMLResponse
 
 load_dotenv()
 
@@ -16,6 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/assets", StaticFiles(directory=Path(__file__).parent.parent / "frontend/dist/assets"), name="assets")
 
 class Message(BaseModel):
     role: str
@@ -28,6 +34,11 @@ class PromptRequest(BaseModel):
     stream: bool
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+# Serve index.html for all routes
+@app.get("/{full_path:path}")
+async def serve_spa(request: Request, full_path: str):
+    return FileResponse("frontend/dist/index.html")
 
 @app.post("/generate_routine")
 async def generate_routine(req: PromptRequest):
@@ -53,3 +64,9 @@ async def generate_routine(req: PromptRequest):
         if any(k in err for k in ["blocked", "safety"]):
             raise HTTPException(400, "Content blocked by safety filters")
         raise HTTPException(500, f"Failed to generate routine: {e}")
+
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return HTMLResponse(content=open("frontend/dist/index.html").read(), status_code=404)
